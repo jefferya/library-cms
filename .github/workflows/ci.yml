@@ -67,6 +67,11 @@ jobs:
             ${{ runner.os }}-yarn-
 
       - name: Precompile Rails assets
+        run: bundle exec rails comfy:compile_assets
+        env:
+          RAILS_ENV: test
+
+      - name: Precompile Rails assets
         run: bundle exec rails assets:precompile
         env:
           RAILS_ENV: test
