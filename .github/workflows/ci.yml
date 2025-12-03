@@ -40,12 +40,6 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v5
 
-      - name: Set up Ruby
-        uses: ruby/setup-ruby@v1
-        with:
-          ruby-version: .ruby-version
-          bundler-cache: true
-
       - name: Read Node version from .tool-versions
         id: node_version
         run: |
@@ -66,15 +60,24 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-yarn-
 
-      - name: Precompile Rails assets
-        run: bundle exec rails comfy:compile_assets
-        env:
-          RAILS_ENV: test
+      - name: Install Node modules
+        run: yarn install
 
-      - name: Precompile Rails assets
-        run: bundle exec rails assets:precompile
-        env:
-          RAILS_ENV: test
+      - name: Set up Ruby
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: .ruby-version
+          bundler-cache: true
+
+      #- name: Precompile Rails assets
+      #  run: bundle exec rails comfy:compile_assets
+      #  env:
+      #    RAILS_ENV: test
+      #
+      #- name: Precompile Rails assets
+      #  run: bundle exec rails assets:precompile
+      #  env:
+      #    RAILS_ENV: test
 
       - name: Run tests
         env:
