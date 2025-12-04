@@ -1,0 +1,32 @@
+
+include:
+  - docker-compose.yml
+
+services:
+
+  web: &app_base
+    image: web 
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
+    environment:
+      #- RAILS_ENV=development
+      #- RAILS_ENV=production
+      #- RAILS_ENV=staging
+      - RAILS_ENV=test
+      - DB_HOST=mysql
+      - CMS_USER=admin
+      - CMS_PASSWORD=mysecretpassword
+    ports:
+      - "3003:3000"
+    links:
+      - mysql 
+    volumes:
+      - ./storage:/app/storage
+    #  - ./tmp/pids:/app/tmp/pids
+    #  - ./tmp:/app/tmp
+      - .:/app
+    command: bin/docker-start
+    tty: true
+    stdin_open: true
+

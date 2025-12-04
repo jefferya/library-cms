@@ -1,0 +1,55 @@
+FROM ruby:3.3.10-alpine                                                                               
+LABEL maintainer="University of Alberta Library"
+
+# install dependencies
+RUN apk add --update --no-cache \
+  build-base \
+  netcat-openbsd \
+  nodejs \
+  npm \
+  yarn \
+  git \
+  tzdata \
+  shared-mime-info \
+  ruby-dev \
+  mariadb-dev \
+  yaml-dev
+
+ENV APP_ROOT=/app
+
+RUN mkdir -p $APP_ROOT
+WORKDIR $APP_ROOT
+
+# Install standard Node modules
+COPY package.json yarn.lock $APP_ROOT/
+RUN yarn install
+
+# Set bundler to Gemfile.lock "BUNDLED WITH" value
+RUN gem install bundler:2.5.22
+
+# Install standard gems
+COPY Gemfile* /app/
+RUN bundle config --global frozen 1 && \
+    bundle install -j4 --retry 3
+
+# *NOW* we copy the codebase in
+# COPY . $APP_ROOT
+
+# Add user
+RUN addgroup -g 1000 -S app \
+  && adduser -u 1000 -S app -G app
+
+# *NOW* we copy the codebase in
+COPY --chown=app:app . $APP_ROOT
+
+# Build CMS assets: can this be done in the engine?
+# RUN bundle exec rails comfy:compile_assets
+RUN bundle exec rails assets:precompile
+
+USER app
+
+#RUN chown -R app:app ./tmp ./public/assets
+#RUN ls -latr && chown -R app:app ./tmp && false
+
+EXPOSE 3000
+
