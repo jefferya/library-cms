@@ -40,6 +40,17 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v5
 
+     - name: Set up Ruby
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: .ruby-version
+          bundler-cache: true
+
+      - name: Compile CMS Engine assets
+        run: bundle exec rails comfy:compile_assets
+        env:
+          RAILS_ENV: test
+
       - name: Read Node version from .tool-versions
         id: node_version
         run: |
@@ -62,17 +73,6 @@ jobs:
 
       - name: Install Node modules
         run: yarn install
-
-      - name: Set up Ruby
-        uses: ruby/setup-ruby@v1
-        with:
-          ruby-version: .ruby-version
-          bundler-cache: true
-
-      - name: Compile CMS Engine assets
-        run: bundle exec rails comfy:compile_assets
-        env:
-          RAILS_ENV: test
 
       - name: Test - precompile Rails assets
         run: bundle exec rails assets:precompile
